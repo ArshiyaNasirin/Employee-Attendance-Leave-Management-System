@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance & Leave Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <i class="fas fa-users-cog"></i>
+                    <h1>Employee Management System</h1>
+                    <p>Sign in to your account</p>
+                </div>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <input type="email" id="loginEmail" placeholder="Email Address" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                </form>
+                <div class="demo-credentials">
+                    <p><strong>Demo Credentials:</strong></p>
+                    <p>Admin: admin@company.com / admin123</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboardScreen" class="screen">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-building"></i>
+                <h3>EMS Portal</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item" data-section="attendance">
+                    <i class="fas fa-clock"></i>
+                    Attendance
+                </a>
+                <a href="#" class="nav-item" data-section="leave">
+                    <i class="fas fa-calendar-alt"></i>
+                    Leave Management
+                </a>
+                <a href="#" class="nav-item admin-only" data-section="employees">
+                    <i class="fas fa-users"></i>
+                    Employees
+                </a>
+                <a href="#" class="nav-item admin-only" data-section="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    Reports
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">User Name</span>
+                </div>
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-header">
+                <h2 id="pageTitle">Dashboard</h2>
+                <div class="header-actions">
+                    <div class="current-time">
+                        <i class="fas fa-clock"></i>
+                        <span id="currentTime"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalEmployees">0</h3>
+                            <p>Total Employees</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="presentToday">0</h3>
+                            <p>Present Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pendingLeaves">0</h3>
+                            <p>Pending Leaves</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="avgHours">0</h3>
+                            <p>Avg Hours/Week</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="quick-actions">
+                                <button class="action-btn punch-in" id="punchInBtn">
+                                    <i class="fas fa-play"></i>
+                                    Punch In
+                                </button>
+                                <button class="action-btn punch-out" id="punchOutBtn" disabled>
+                                    <i class="fas fa-stop"></i>
+                                    Punch Out
+                                </button>
+                                <button class="action-btn leave-request" onclick="showSection('leave')">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Request Leave
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="recentActivity" class="activity-list">
+                                <!-- Activity items will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Section -->
+            <div id="attendanceSection" class="content-section">
+                <div class="section-header">
+                    <h3>Attendance Records</h3>
+                    <div class="attendance-status">
+                        <span id="attendanceStatus" class="status-badge">Not Punched In</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-content">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Punch In</th>
+                                        <th>Punch Out</th>
+                                        <th>Total Hours</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceTable">
+                                    <!-- Attendance records will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Management Section -->
+            <div id="leaveSection" class="content-section">
+                <div class="section-header">
+                    <h3>Leave Management</h3>
+                    <button class="btn-primary" onclick="showLeaveForm()">
+                        <i class="fas fa-plus"></i>
+                        New Leave Request
+                    </button>
+                </div>
+
+                <!-- Leave Request Form -->
+                <div id="leaveForm" class="card" style="display: none;">
+                    <div class="card-header">
+                        <h3>Submit Leave Request</h3>
+                    </div>
+                    <div class="card-content">
+                        <form id="leaveRequestForm">
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label>Leave Type</label>
+                                    <select id="leaveType" required>
+                                        <option value="">Select Leave Type</option>
+                                        <option value="sick">Sick Leave</option>
+                                        <option value="casual">Casual Leave</option>
+                                        <option value="annual">Annual Leave</option>
+                                        <option value="maternity">Maternity Leave</option>
+                                        <option value="emergency">Emergency Leave</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Start Date</label>
+                                    <input type="date" id="startDate" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>End Date</label>
+                                    <input type="date" id="endDate" required>
+                                </div>
+                                <div class="input-group full-width">
+                                    <label>Reason</label>
+                                    <textarea id="leaveReason" rows="3" placeholder="Enter reason for leave" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="hideLeaveForm()">Cancel</button>
+                                <button type="submit" class="btn-primary">Submit Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Leave Requests Table -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="admin-only">Employee</th>
+                                        <th>Leave Type</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Status</th>
+                                        <th>Applied Date</th>
+                                        <th class="admin-only">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaveRequestsTable">
+                                    <!-- Leave requests will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employees Section (Admin Only) -->
+            <div id="employeesSection" class="content-section">
+                <div class="section-header">
+                    <h3>Employee Management</h3>
+                    <button class="btn-primary" onclick="showEmployeeForm()">
+                        <i class="fas fa-user-plus"></i>
+                        Add Employee
+                    </button>
+                </div>
+
+                <!-- Add Employee Form -->
+                <div id="employeeForm" class="card" style="display: none;">
+                    <div class="card-header">
+                        <h3>Add New Employee</h3>
+                    </div>
+                    <div class="card-content">
+                        <form id="addEmployeeForm">
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label>Employee ID</label>
+                                    <input type="text" id="employeeId" placeholder="EMP001" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="employeeName" placeholder="John Doe" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Email</label>
+                                    <input type="email" id="employeeEmail" placeholder="john@company.com" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Department</label>
+                                    <select id="employeeDepartment" required>
+                                        <option value="">Select Department</option>
+                                        <option value="IT">IT</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Operations">Operations</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Password</label>
+                                    <input type="password" id="employeePassword" placeholder="Temporary password" required>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="hideEmployeeForm()">Cancel</button>
+                                <button type="submit" class="btn-primary">Add Employee</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Employees Table -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Department</th>
+                                        <th>Joined Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeesTable">
+                                    <!-- Employees will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section (Admin Only) -->
+            <div id="reportsSection" class="content-section">
+                <div class="section-header">
+                    <h3>Reports & Analytics</h3>
+                </div>
+                <div class="reports-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Attendance Summary</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>Detailed attendance reports and analytics will be displayed here.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Leave Analytics</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>Leave patterns and statistics will be shown here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
